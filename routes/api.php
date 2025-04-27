@@ -25,7 +25,10 @@ Route::post('/register', [AuthController::class, 'register']);
 
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-Route::middleware('jwt-verify')->get('/dashboard', [AuthController::class, 'dashboard']);
-Route::get('/logout', [AuthController::class, 'logout']);
+Route::middleware('jwt-verify')->group(function(){
+    Route::get('/dashboard', [AuthController::class, 'dashboard']);
+    Route::get('/logout', [AuthController::class, 'logout']);
+});
 
-Route::get('/email/verify/{id}/{hash}', [Verification::class, 'verify'])->name('verification.verify');
+
+// Route::get('/email/verify/{id}/{hash}', [Verification::class, 'verify'])->name('verification.verify');
