@@ -18,6 +18,20 @@ class AuthController extends Controller
     public function register(Request $request)
     {
 
+       try {
+
+        $validator = FacadesValidator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
         $user = new User();
 
         $user->name = $request->name;
@@ -28,8 +42,15 @@ class AuthController extends Controller
 
         return response()->json([
             'status' => 'success',
+            'message' => 'User has been registered successfully',
             'data' => $user
         ], 200);
+       } catch (\Throwable $th) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Failed to register user, please try again'
+        ], 500);
+       }
 
     }
 
@@ -45,7 +66,7 @@ class AuthController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'status' => 'error',
-                'message' => $validator->errors()
+                'message' => $validator->errors()->first()
             ], 422);
         }
 
@@ -62,10 +83,9 @@ class AuthController extends Controller
 
          
 
-        return response()->json([
-            'status' => 'success',
-        ], 200)->cookie('token', $token, 60 * 24 * 7); // 7 days
-
+        return response()->json(['message' => 'Login successful'])->cookie(
+            'token', $token, 60, '/', null, true, true, false, 'Strict'
+        );
     }
 
     public function dashboard(){
